@@ -1,6 +1,6 @@
 import random
 class unit():
-    def __init__(self,name,maxhp,maxmp,attack,defence,speed,magic,dex,agility,abilities,skills,equipped,level,playable,friendly,status):
+    def __init__(self,name,maxhp,maxmp,attack,defence,speed,magic,dex,agility,abilities,skills,equipped,level,playable,friendly):
       self.name=name
       self.maxhp=maxhp
       self.hp=self.maxhp
@@ -26,7 +26,7 @@ class unit():
       self.magbst=0
       self.agilitybst=0
       self.dexbst=0
-      self.status=0
+      self.status=normal
     def setstats(self):
        self.effattack=(self.baseattack+self.equipped.totalatk)*(1+self.atkbst*0.25)
        self.effdefence=self.basedefence+self.equipped.totaldef*(1+self.defbst*0.25)
@@ -37,12 +37,12 @@ class unit():
        self.effdex=self.basedex+self.equipped.totaldex*(1+self.dexbst*0.25)
        self.effagility=self.baseagility+self.equipped.totalagility*(1+self.agilitybst*0.25)
 class partymember(unit):
-   def __init__(self, name, maxhp, maxmp, attack, defence, speed, magic, dex,agility,abilities, skills, equipped,level,xp,playable,friendly,status):
-      super().__init__(name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, playable, level, friendly,status)
+   def __init__(self, name, maxhp, maxmp, attack, defence, speed, magic, dex,agility,abilities, skills, equipped,level,xp,playable,friendly):
+      super().__init__(name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, playable, level, friendly)
       self.xp=xp
 class enemy(unit):
-   def __init__(self, name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly,xpdrop,goldrop,itemdrop,status):
-      super().__init__(name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly,status)
+   def __init__(self, name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly,xpdrop,goldrop,itemdrop):
+      super().__init__(name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly)
       self.xpdrop=xpdrop
       self.goldrop=goldrop
       self.itemdrop=itemdrop
