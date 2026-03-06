@@ -1,6 +1,6 @@
 import random
 class unit():
-    def __init__(self,name,maxhp,maxmp,attack,defence,speed,magic,dex,agility,abilities,skills,equipped,playable,level,friendly):
+    def __init__(self,name,maxhp,maxmp,attack,defence,speed,magic,dex,agility,abilities,skills,equipped,level,playable,friendly):
       self.name=name
       self.maxhp=maxhp
       self.hp=self.maxhp
@@ -117,22 +117,10 @@ def specialsassign(cunit,cskill):
              specials.append(x)
           for x in cunit.equipped.feet.special:
              specials.append(x)
-          for x in cskill.special:
+          for x in cunit.abilities:
              specials.append(x)
-          return specials
-def specialsassignnoskill(cunit):
-          specials=[]
-          for x in cunit.equipped.weapon.special:
-             specials.append(x)
-          for x in cunit.equipped.head.special:
-             specials.append(x)
-          for x in cunit.equipped.arms.special:
-             specials.append(x)
-          for x in cunit.equipped.body.special:
-             specials.append(x)
-          for x in cunit.equipped.legs.special:
-             specials.append(x)
-          for x in cunit.equipped.feet.special:
+          if cskill!=0:
+            for x in cskill.special:
              specials.append(x)
           return specials
 def turnorder(list1):
@@ -143,18 +131,21 @@ def turnorder(list1):
           list1[j], list1[j+1] = list1[j+1], list1[j]
 def moveselect(cunit):
       valid=False
+      choice=0
+      cskill=basicatk
       while not valid:
        choice=input("Attack (1), Skills (2) ")
        if choice=="1" or choice=="2":
           if choice =="1":
              cskill=basicatk
-             print("Attacked")
              valid=True
           elif choice =="2":
              valid= True
              cskill=0
              while cskill==0:
                cskill=skillselect(cunit)
+          if cskill.ID==0:
+           print("aaaaaaa")
           if cskill.targets==1:
                 tempunits=units.copy()
                 tempunits.remove(cunit)
@@ -171,17 +162,24 @@ def moveselect(cunit):
              if i.ID==1:
                 cunit.spdbst+=1
                 print("Speed went up!")
-          hitchance=(cunit.effdex/target.effagility)*cskill.accuracy
-          if random.randint(1,100)<=hitchance or cskill.accuracy==101:
-            dmg=damagecalc(cunit,cskill,target,specials,specialsassignnoskill(target))   
-            target.hp-=dmg
-            print(f"{target.name} took {dmg} damage!")
-            for i in units:
-                  if i.hp <=0:
+          if cskill.type==0:
+            hitchance=(cunit.effdex/target.effagility)*cskill.accuracy
+            if random.randint(1,100)<=hitchance or cskill.accuracy==101:
+                dmg=damagecalc(cunit,cskill,target,specials,specialsassign(target,0))   
+                target.hp-=dmg
+                print(f"{target.name} took {dmg} damage!")
+                for i in units:
+                    if i.hp <=0:
                      print(f"{i.name} was defeated!")
+                     if i.playable:
+                        playerunits.remove(i)
+                     elif i.friendly:
+                        friendlyunits.remove(i)
+                     else:
+                        enemyunits.remove(i)
                      units.remove(i)
-          else:
-             print("The attack missed!")
+            else:
+                print("The attack missed!")
 def skillselect(cunit):
              print("Skills:")
              for i in range(len(cunit.skills)):
@@ -228,12 +226,14 @@ def damagecalc(attacker,cskill,target,atkspecials,defspecials):
       defstat=target.effdefence
    elif dmgtype==2:
       defstat=target.effmag
-   dmg=round((atkstat/defstat)*power*(random.randint(85,100))/100)
+   dmgmult=1
+   dmg=round((atkstat/defstat)*power*(random.randint(85,115))/100)*dmgmult
    return dmg
    
 
       
 espear=weapon(0,False,0,20,0,0,0,5,[],"Thunder Spear",1)
+knife=weapon(20,True,0,10,5,5,0,0,[],"Knife",1)
 gloves=armour(50,True,15,30,0,0,0,0,[],"arms","Gloves")
 ironswrd=weapon(30,True,5,20,-2,0,0,0,[],"Iron Sword",1)
 lthrchest=armour(25,True,25,0,0,0,0,0,[],"body","Leather Chestplate")
@@ -241,16 +241,28 @@ nothingarmour=armour(0,False,0,0,0,0,0,0,[],"any","nothing")
 nothingweapon=weapon(0,False,0,0,0,0,0,0,[],"nothing",1)
 speedboost=special("Speed Boost",1)
 tbolt=atkskill("Thunderbolt",1,0,20,2,2,"Attack an enemy with a bolt of lightning, dealing magic damage and a chance to paralyse",10,1,[],100)
-spdyslsh=atkskill("Speedy Slash",2,0,10,1,1,"Strike an enemy quickly, raising the user's speed stat",15,1,[speedboost],100)
+spdyslsh=atkskill("Speedy Slash",2,0,8,1,1,"Strike an enemy quickly, raising the user's speed stat",15,1,[speedboost],100)
+wildstrike=atkskill("Wild Strike",3,0,30,1,1,"A powerful but inaccurate physical attack",5,1,[],60)
+darkspike=atkskill("Dark Spike",4,0,15,2,1,"Attack a target with spikes of darkness. A magical attack that deals physical damage",7,1,[],95)
 basicatk=atkskill("Basic attack",0,0,10,1,1,"",0,1,[],100)
-cass=partymember("Cass",50,30,50,40,40,30,30,30,[speedboost],[tbolt,spdyslsh],equipped(espear,nothingarmour,nothingarmour,lthrchest,nothingarmour,gloves),10,0,True,True)
-slime=unit("Slime",50,10,20,50,20,15,10,10,[],[],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),False,5,False)
-skeleton=unit("Skeleton",30,7,30,20,30,10,20,25,[],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),False,5,False)
-units=[cass,slime,skeleton]
-playerunits=[cass]
+cass=partymember("Cass",50,30,50,40,40,30,30,30,[],[tbolt,spdyslsh,wildstrike],equipped(espear,nothingarmour,nothingarmour,lthrchest,nothingarmour,gloves),10,0,True,True)
+aster=partymember("Aster",30,25,30,20,35,35,50,50,[],[spdyslsh,darkspike],equipped(knife,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),10,0,True,True)
+slime=unit("Slime",50,10,20,50,20,15,10,10,[],[],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),5,False,False)
+skeleton=unit("Skeleton",30,7,30,20,30,10,20,25,[],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),5,False,False)
+jeff=unit("Jeff",20,10,10,10,10,5,15,15,[],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),4,False,True)
+units=[cass,aster,slime,skeleton,jeff]
+playerunits=[]
 friendlyunits=[]
-enemyunits=[slime,skeleton]
-while len(units)>len(playerunits):
+enemyunits=[]
+for x in units:
+   if x.friendly:
+      if x.playable:
+         playerunits.append(x)
+      else:
+         friendlyunits.append(x)
+   else:
+      enemyunits.append(x)
+while len(playerunits)>0 and len(enemyunits)>0:
    for x in units:
       x.setstats()
    turnorder(units)
@@ -263,13 +275,17 @@ while len(units)>len(playerunits):
             print(f"MP: {x.mp}/{x.maxmp}")
             moveselect(x)
          else:
-            allies=[]
+            enemies=[]
             cskill=basicatk
             for i in units:
-               if i.friendly:
-                  allies.append(i)
-            target=random.choice(allies)
-            dmg=damagecalc(x,cskill,target,specialsassign(x,cskill),specialsassignnoskill(target))
+               if x.friendly:
+                if not i.friendly:
+                  enemies.append(i)
+               else:
+                  if i.friendly:
+                     enemies.append(i)
+            target=random.choice(enemies)
+            dmg=damagecalc(x,cskill,target,specialsassign(x,cskill),specialsassign(target,0))
             target.hp-=dmg
             print(f"{target.name} took {dmg} damage!")
             for i in units:
@@ -283,5 +299,4 @@ while len(units)>len(playerunits):
                         enemyunits.remove(i)
                      units.remove(i)
       
-
 
