@@ -158,6 +158,7 @@ def moveselect(cunit):
                cskill=skillselect(cunit)
                if cskill==1:
                   moveselect(cunit)
+      makemove(cunit,cskill)
 def makemove(cunit,cskill):
           global enemyunits,playerunits,friendlyunits
           if cskill.targets==1:
@@ -223,16 +224,16 @@ def makemove(cunit,cskill):
                   if target.hp>target.maxhp:
                      target.hp=target.maxhp
                   print(f"{target.name} healed {healing} hp!")
-      for i in cunit.status:
-         if i.ID==2:
+          for i in cunit.status:
+           if i.ID==2:
                statusdmg=round(cunit.maxhp/10)
                cunit.hp-=statusdmg
                print(f"{cunit.name} took {statusdmg} burn damage!")   
-         if i.ID==3:
+           if i.ID==3:
                statusdmg=round(cunit.maxhp/8)
                cunit.hp-=statusdmg
                print(f"{cunit.name} took {statusdmg} poison damage!") 
-      hpcheck()
+          hpcheck()
 def skillselect(cunit):
              print("Skills:")
              for i in range(len(cunit.skills)):
