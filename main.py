@@ -62,7 +62,6 @@ class equipped():
        self.totalmag=self.weapon.magic+self.head.magic+self.legs.magic+self.body.magic+self.feet.magic+self.arms.magic
        self.totaldex=self.weapon.dex+self.head.dex+self.legs.dex+self.body.dex+self.feet.dex+self.arms.dex
        self.totalagility=self.weapon.agility+self.head.agility+self.legs.agility+self.body.agility+self.feet.agility+self.arms.agility
-
 class item():
    def __init__(self,price,sellable,name):
       self.price=price
@@ -159,7 +158,8 @@ def moveselect(cunit):
                cskill=skillselect(cunit)
                if cskill==1:
                   moveselect(cunit)
-
+def makemove(cunit,cskill):
+          global enemyunits,playerunits,friendlyunits
           if cskill.targets==1:
                 tempunits=units.copy()
                 tempunits.remove(cunit)
@@ -259,11 +259,11 @@ def skillselect(cunit):
                            choice = input("Use this skill? (y/n) ").lower()
                            if choice =="y" or choice =="n":
                               valid = True
-                              if choice=="y":
-                                    cunit.mp-=cskill.manacost
-                                    return cskill
-                              else:
-                                    return 0
+                        if choice=="y":
+                              cunit.mp-=cskill.manacost
+                              return cskill
+                        elif choice=="n":
+                              return 0
                    else:
                       return 1
 def damagecalc(attacker,cskill,target,atkspecials,defspecials):
@@ -291,12 +291,13 @@ def damagecalc(attacker,cskill,target,atkspecials,defspecials):
    for x in defspecials:
       if x.ID==7 and dmgtype==1:
          dmgmult=0
-      if x.ID==8 and cskill.ID==7:
-         dmgmult=0
-      if (x.ID==12 or x.ID==7)and cskill.ID==12 :
-          dmgmult=0
-      if x.ID==15 and cskill.ID==7:
+      for i in atkspecials:
+       if x.ID==15 and i.ID==18:
           dmgmult*=2
+       if x.ID==8 and i.ID==18:
+         dmgmult=0
+       if (x.ID==12 or x.ID==7) and i.ID==19 :
+          dmgmult=0
    critrate=(attacker.effdex/2)*critratemult
    if random.randint(1,100)<=critrate:
       dmgmult*=3
@@ -420,7 +421,7 @@ def attack(cunit,ctarget,cskill,atkspecials):
                   if random.randint(1,100)<=hitchance or cskill.accuracy==101:
                      for i in defspecials:
                          if i.ID==13 and cskill.dmgtype==2:
-                             print(f"The attack was reflected by {ctarget}!")
+                             print(f"The attack was reflected by {ctarget.name}!")
                              ctarget=cunit
                              
                      dmg=damagecalc(cunit,cskill,ctarget,atkspecials,specialsassign(ctarget,0))   
@@ -472,7 +473,6 @@ def attack(cunit,ctarget,cskill,atkspecials):
                               cunit.hp=cunit.maxhp
                   else:
                      print(f"{ctarget.name} dodged the attack!")  
-
 def hpcheck():
  for i in units:
                      if i.hp <=0:
@@ -487,6 +487,56 @@ def hpcheck():
                            enemydefeated.append(i)
                            enemyunits.remove(i)
                         units.remove(i)
+def combat():
+   for x in units:
+      if x.friendly:
+         if x.playable:
+            playerunits.append(x)
+         else:
+            friendlyunits.append(x)
+      else:
+         enemyunits.append(x)
+   while len(playerunits)>0 and len(enemyunits)>0:
+      for x in units:
+         x.setstats()
+      turnorder(units)
+      for x in units:
+         if len(playerunits)>0 and len(enemyunits)>0:
+            x.setstats()
+            print (f"{x.name}'s turn!")
+            move=True
+            for j in x.status:
+               if j.ID==1 and random.randint(1,3)==3:
+                  move=False
+                  print(f"{x.name} is fully paralysed!")
+               if j.ID==5:
+                  move=False
+                  print(f"{x.name} is frozen!")
+                  if random.randint(1,3)==3:
+                     x.status.remove(j)
+                     print(f"{x.name} thawed out!")
+            if move:
+                  if x.playable:
+                        print(f"HP: {x.hp}/{x.maxhp}")
+                        print(f"MP: {x.mp}/{x.maxmp}")
+                        moveselect(x)
+                  else:
+                     aiturn(x)
+def battleend():
+   if len(playerunits)>0:
+      totalxp=0
+      totalgold=0
+      print("You won!")
+      for x in enemydefeated:
+         totalxp+=x.xpdrop
+         totalgold+=x.goldrop
+      print(f"You gained {totalgold} gold!")
+      for x in playerunits:
+         xpgain=round(totalxp/len(playerunits))
+         print(f"{x.name} gained {xpgain} xp!")
+         x.xp+=xpgain
+   else:
+      print("You lost")
 
 speedboost=special("Speed Boost",1,"Raises speed stat when attacking")
 dexdwn=special("Dex Down",2,"1/3 chance to lower target's dexterity")
@@ -505,6 +555,8 @@ regenerate=special("Regenerate",14,"Regenerate 10% of hp each turn")
 vampiric=special("Vampiric",15,"Recover half of physical damage done")
 fireweak=special("Fire Weakness",16,"Take double damage from fire attacks")
 freeze=special("Freeze",17,"1/3 chance to freeze when attacking")
+fire=special("Fire",18,"Fire")
+poison=special("Poison",19,"Poison")
 
 
 paralysis=status("Paralysed",1,1)
@@ -532,17 +584,17 @@ wildstrike=atkskill("Wild Strike",3,0,30,1,1,"A powerful but inaccurate physical
 darkspike=atkskill("Dark Spike",4,0,15,2,1,"Attack a target with spikes of darkness. A magical attack that deals physical damage",7,1,[],95)
 darkblast=atkskill("Dark Blast",5,0,20,2,2,"Launch a collection of dark energy at the target. Chance to reduce dexterity",10,1,[dexdwn],90)
 sneakystrike=atkskill("Sneaky Strike",6,0,11,1,1,"Attack the target from the shadows, raising agility and never missing",5,1,[aglup],101)
-heatwave=atkskill("Heat Wave",7,0,14,2,2,"Hit all opponents with a blast of superheated air. Has a chance to burn",10,2,[burnaf],80)
+heatwave=atkskill("Heat Wave",7,0,14,2,2,"Hit all opponents with a blast of superheated air. Has a chance to burn",10,2,[burnaf,fire],80)
 split=skill("Split",8,1,"Split into two smaller copies",0,0)
 heal=skill("Heal",9,2,"Restore the target's HP",10,3)
 poisonstrike=atkskill("Poisoned Strike",10,0,12,1,1,"Attack an enemy with a poisoned attack",6,1,[toxic],100)
-poisonspray=atkskill("Poison Spray",11,0,15,2,2,"Spray poison at all enemies",5,2,[toxic],85)
+poisonspray=atkskill("Poison Spray",11,0,15,2,2,"Spray poison at all enemies",5,2,[toxic,poison],85)
 revive=skill("Revive",12,1,"Revive a defeated ally",20,4)
 blizzard=atkskill("Blizzard",13,0,17,2,2,"Summon a blizzard that hits all units on the field with a chance to freeze",13,5,[freeze],80)
 
 cass=partymember("Cass",50,30,50,40,40,30,30,30,[],[tbolt,spdyslsh,wildstrike],equipped(espear,nothingarmour,nothingarmour,lthrchest,nothingarmour,gloves),10,0,True,True)
 aster=partymember("Aster",30,25,30,20,35,40,50,50,[],[spdyslsh,darkspike,darkblast,sneakystrike,poisonstrike],equipped(assassinknife,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),10,0,True,True)
-elphis=partymember("Elphis",25,50,15,15,250,50,20,20,[],[tbolt,heatwave,heal,blizzard],equipped(wand,nothingarmour,nothingarmour,robe,nothingarmour,nothingarmour),10,0,True,True)
+elphis=partymember("Elphis",25,50,15,15,25,50,20,20,[],[tbolt,heatwave,heal,blizzard],equipped(wand,nothingarmour,nothingarmour,robe,nothingarmour,nothingarmour),10,0,True,True)
 
 slime=enemy("Slime",50,10,20,50,20,15,10,10,[paralysisimmune,toximmune],[split,poisonspray],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),5,False,False,10,10,[])
 skeleton=enemy("Skeleton",30,7,30,20,30,10,20,25,[undead,paralysisimmune],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),5,False,False,10,10,[])
@@ -559,51 +611,9 @@ friendlyunits=[]
 enemyunits=[]
 enemydefeated=[]
 friendlydefeated=[]
-for x in units:
-   if x.friendly:
-      if x.playable:
-         playerunits.append(x)
-      else:
-         friendlyunits.append(x)
-   else:
-      enemyunits.append(x)
-while len(playerunits)>0 and len(enemyunits)>0:
-   for x in units:
-      x.setstats()
-   turnorder(units)
-   for x in units:
-      if len(playerunits)>0 and len(enemyunits)>0:
-         x.setstats()
-         print (f"{x.name}'s turn!")
-         move=True
-         for j in x.status:
-          if j.ID==1 and random.randint(1,3)==3:
-             move=False
-             print(f"{x.name} is fully paralysed!")
-          if j.ID==5:
-             move=False
-             print(f"{x.name} is frozen!")
-             if random.randint(1,3)==3:
-                x.status.remove(j)
-                print(f"{x.name} thawed out!")
-         if move:
-            if x.playable:
-                  print(f"HP: {x.hp}/{x.maxhp}")
-                  print(f"MP: {x.mp}/{x.maxmp}")
-                  moveselect(x)
-            else:
-               aiturn(x)
-if len(playerunits)>0:
-   totalxp=0
-   totalgold=0
-   print("You won!")
-   for x in enemydefeated:
-       totalxp+=x.xpdrop
-       totalgold+=x.goldrop
-   print(f"You gained {totalgold} gold!")
-   for x in playerunits:
-       xpgain=round(totalxp/len(playerunits))
-       print(f"{x.name} gained {xpgain} xp!")
-       x.xp+=xpgain
+
+
+combat()
+battleend()
        
       
