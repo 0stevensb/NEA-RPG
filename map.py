@@ -1,27 +1,38 @@
 class tile():
-    def __init__(self,id,name,y,x):
+    def __init__(self,id,name,y,x,passable):
         self.ID=id
         self.name=name
         self.x,self.y=x,y
-tiles ={"g":"grass", "t":"tree","r":"rock","c":"chest"}
+        self.passable=passable
+tiles ={"g":"grass", "t":"tree","r":"rock","c":"chest","e":"enemy","rd":"road"}
 maps=open("maps.txt","r")
+mapdests=open("mapdests.txt","r")
 mapscontent=maps.readlines()
-cmap=mapscontent[0].split("^")
-rows=len(cmap)
-for i in range(len(cmap)):
-   cmap[i]=cmap[i].split(",")
-cols=len(cmap[0])
-cid=0
-playerx=0
-playery=0
-for i in range(rows):
-   cmap[i] = [x.replace('"', '') for x in cmap[i]]
-   cmap[i] = [x.replace(']', '') for x in cmap[i]]
-   cmap[i] = [x.replace('[', '') for x in cmap[i]]
-   cmap[i] = [x.replace(' ', '') for x in cmap[i]]
-   for j in range(cols):
-         cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j)
-         cid+=1
+mapdestscontent=mapdests.readlines()
+def openmap(tile, tiles, mapscontent,mapID,px,py):
+    cmap=mapscontent[mapID].split("^")
+    rows=len(cmap)
+    for i in range(len(cmap)):
+       cmap[i]=cmap[i].split(",")
+    cols=len(cmap[0])
+    cid=0
+    playerx,playery=px,py
+    for i in range(rows):
+       cmap[i] = [x.replace('"', '') for x in cmap[i]]
+       cmap[i] = [x.replace(']', '') for x in cmap[i]]
+       cmap[i] = [x.replace('[', '') for x in cmap[i]]
+       cmap[i] = [x.replace(' ', '') for x in cmap[i]]
+       cmap[i] = [x.replace('\n', '') for x in cmap[i]]
+       for j in range(cols):
+             if cmap[i][j]=="g"or cmap[i][j]=="rd":
+                cpass=True
+             else:
+                cpass=False
+             cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cpass)
+             cid+=1
+    return cmap,rows,cols,playerx,playery
+
+cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,0,1,1)
 
 def printmap(cmap, cols, playerx, playery):
     count=0
@@ -39,6 +50,7 @@ def printmap(cmap, cols, playerx, playery):
              print(f"Ben ",end="")
           else:
            print(f"{j.name} ",end="")
+mapID=0
 while True:
  printmap(cmap, cols, playerx, playery)
  move=input().lower()
@@ -51,8 +63,21 @@ while True:
  elif move=="s":
     targetx,targety=playerx,playery+1
  print(targetx,targety)
- if targetx<=cols and 0<=targetx and targety<=rows and targety>=0:
-
-    if cmap[targety][targetx].name=="grass":
+ if targetx<=cols-1 and 0<=targetx and targety<=rows-1 and targety>=0:
+    if cmap[targety][targetx].passable:
         playerx,playery=targetx,targety
-
+ else:
+  destinations=mapdestscontent[mapID].split(",")
+  if targetx>cols-1  :
+   cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[2]),0,targety)
+   mapID=int(destinations[1])-1
+  elif 0>targetx:
+     cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[4]),cols-1,targety)
+     mapID=int(destinations[3])-1
+  elif targety>rows-1:
+    cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[3]),targetx,0) 
+    mapID=int(destinations[2])-1
+  elif 0>targety:
+     cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[1]),targetx,rows-1) 
+     mapID=int(destinations[0])-1
+  print(mapID)

@@ -1,1 +1,3 @@
-c,g,t,t,t,r^t,g,g,t,t,t^t,g,t,t,r,t^t,g,g,g,t,t^t,g,r,g,t,t^t,g,g,g,c,t^t,t,r,g,g,t^t,t,r,g,t,t
+e,g,t,t,t,r^t,g,g,t,t,t^t,g,t,t,r,t^t,g,g,g,t,t^t,g,r,g,t,t^t,g,g,g,c,t^t,t,r,g,g,g^t,t,r,g,t,t
+g,g,g,g,g,g^g,g,g,g,g,g^g,g,g,g,g,g^g,g,g,g,g,g^g,g,g,g,g,g^g,g,g,g,g,g^g,g,g,g,g,g^g,g,g,g,g,g
+g,g,rd,g,g,g^g,g,rd,g,g,g^g,g,rd,g,g,g^g,g,rd,g,g,g^g,g,rd,g,g,g^g,g,rd,g,g,g^g,g,rd,g,g,g^g,g,rd,g,g,g
