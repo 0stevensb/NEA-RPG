@@ -4,6 +4,27 @@ class tile():
         self.name=name
         self.x,self.y=x,y
         self.passable=passable
+class graph():
+   def __init__(self):
+      self.vertices={}
+   def addvertex(self,vertex,touching):
+      self.vertices.update({vertex:touching})
+
+def mapgraph(map):
+   currentmap=graph()
+   for i in range(len(map)):
+      for j in range(len(map[i])):
+         touching=[]
+         if map[i-1][j].passable:
+            touching.append(map[i-1][j])
+         if map[i-1][j-2].passable:
+            touching.append(map[i-1][j-2])
+         if map[i][j-1].passable:
+            touching.append(map[i][j-1])
+         if map[i-2][j-1].passable:
+            touching.append(map[i-2][j-1])
+         currentmap.addvertex(map[i][j],touching)
+   return currentmap
 tiles ={"g":"grass", "t":"tree","r":"rock","c":"chest","e":"enemy","rd":"road"}
 maps=open("maps.txt","r")
 mapdests=open("mapdests.txt","r")
@@ -52,6 +73,8 @@ def printmap(cmap, cols, playerx, playery):
            print(f"{j.name} ",end="")
 mapID=0
 while True:
+ currentmapgraph=mapgraph(cmap)
+ print(mapID)
  printmap(cmap, cols, playerx, playery)
  move=input().lower()
  if move=="d":
@@ -68,16 +91,21 @@ while True:
         playerx,playery=targetx,targety
  else:
   destinations=mapdestscontent[mapID].split(",")
+  destinations = [x.replace('"', '') for x in destinations]
+  destinations = [x.replace(']', '') for x in destinations]
+  destinations = [x.replace('[', '') for x in destinations]
+  destinations = [x.replace(' ', '') for x in destinations]
+  destinations = [x.replace('\n', '') for x in destinations]
   if targetx>cols-1  :
-   cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[2]),0,targety)
+   cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[1])-1,0,targety)
    mapID=int(destinations[1])-1
   elif 0>targetx:
-     cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[4]),cols-1,targety)
+     cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[3])-1,cols-1,targety)
      mapID=int(destinations[3])-1
   elif targety>rows-1:
-    cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[3]),targetx,0) 
+    cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[2])-1,targetx,0) 
     mapID=int(destinations[2])-1
   elif 0>targety:
-     cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[1]),targetx,rows-1) 
+     cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[0])-1,targetx,rows-1) 
      mapID=int(destinations[0])-1
-  print(mapID)
+  print(mapID+1)
