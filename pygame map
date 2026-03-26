@@ -1,0 +1,91 @@
+import pygame
+import map
+pygame.init()
+tiles ={"g":"grass", "t":"tree","r":"rock","c":"chest","e":"enemy","rd":"road"}
+mapID=0
+cmap, rows, cols, playerx, playery = map.openmap(tiles, map.mapscontent,mapID,1,1)
+screen_width, screen_height = cols*100, rows*50
+height=screen_height/rows
+width=screen_width/cols
+screen = pygame.display.set_mode((screen_width, screen_height))
+mc = pygame.image.load('mela.png').convert_alpha()
+
+
+tiletextures=[map.grassimage,map.rockimage,map.treeimage,map.chestimage,map.enemyimage,map.roadimage]
+for i in tiletextures:
+    i=i.convert_alpha()
+    i =pygame.transform.scale(i, (width,height))
+mc = pygame.transform.scale(mc, (width/3,height))
+
+running=True
+red=(255,0,0)
+green=(0,255,0)
+darkgreen=(49, 107, 20)
+blue=(0,0,255)
+grey=(89, 92, 88)
+gold=(251, 255, 3)
+darkgrey=(51, 51, 49)
+purple=(131, 23, 173)
+mapswitchcooldown=0
+while running:
+    
+    for i in cmap:
+        for j in i:
+         screen.blit(j.colour,(((j.x)*width)+width/3,(j.y)*height))
+         #pygame.draw.rect(screen, j.colour, (((j.x)*width,(j.y)*height,width,height)), 100,)
+         if j.x==playerx and j.y==playery:
+             screen.blit(mc,(((j.x)*width)+width/3,(j.y)*height))
+          
+    pygame.display.flip()
+    # Control the game frame rate
+    pygame.time.Clock().tick(30)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        keys = pygame.key.get_pressed()
+        moving=False
+        if keys[pygame.K_RIGHT]:
+           targetx,targety=playerx+1,playery
+           moving=True
+        if keys[pygame.K_LEFT]:
+           targetx,targety=playerx-1,playery
+           moving=True
+        if keys[pygame.K_UP]:
+           targetx,targety=playerx,playery-1
+           moving=True
+        if keys[pygame.K_DOWN]:
+           targetx,targety=playerx,playery+1
+           moving=True
+        if keys[pygame.K_q]:
+           running=False
+    if moving:
+        if targetx<=cols-1 and 0<=targetx and targety<=rows-1 and targety>=0:
+            if cmap[targety][targetx].passable:
+                playerx,playery=targetx,targety
+        else:
+            destinations=map.mapdestscontent[mapID].split(",")
+            destinations = [x.replace('"', '') for x in destinations]
+            destinations = [x.replace(']', '') for x in destinations]
+            destinations = [x.replace('[', '') for x in destinations]
+            destinations = [x.replace(' ', '') for x in destinations]
+            destinations = [x.replace('\n', '') for x in destinations]
+            if targetx>cols-1  and mapswitchcooldown==0:
+                cmap, rows, cols, playerx, playery = map.openmap(tiles, map.mapscontent,int(destinations[1])-1,0,targety)
+                mapID=int(destinations[1])-1
+                mapswitchcooldown=60
+            elif 0>targetx and mapswitchcooldown==0:
+                cmap, rows, cols, playerx, playery = map.openmap( tiles, map.mapscontent,int(destinations[3])-1,cols-1,targety)
+                mapID=int(destinations[3])-1
+                mapswitchcooldown=60
+            elif targety>rows-1 and mapswitchcooldown==0:
+                cmap, rows, cols, playerx, playery = map.openmap( tiles, map.mapscontent,int(destinations[2])-1,targetx,0) 
+                mapID=int(destinations[2])-1
+                mapswitchcooldown=60
+            elif 0>targety and mapswitchcooldown==0:
+                cmap, rows, cols, playerx, playery = map.openmap(tiles, map.mapscontent,int(destinations[0])-1,targetx,rows-1) 
+                mapID=int(destinations[0])-1
+                mapswitchcooldown=60
+    
+    if mapswitchcooldown>0:
+       mapswitchcooldown-=1
+pygame.quit()

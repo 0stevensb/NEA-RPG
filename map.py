@@ -1,15 +1,23 @@
+red=(255,0,0)
+green=(0,255,0)
+darkgreen=(49, 107, 20)
+blue=(0,0,255)
+grey=(89, 92, 88)
+gold=(251, 255, 3)
+darkgrey=(51, 51, 49)
+import pygame
 class tile():
-    def __init__(self,id,name,y,x,passable):
+    def __init__(self,id,name,y,x,passable,colour):
         self.ID=id
         self.name=name
         self.x,self.y=x,y
         self.passable=passable
+        self.colour=colour
 class graph():
    def __init__(self):
       self.vertices={}
    def addvertex(self,vertex,touching):
       self.vertices.update({vertex:touching})
-
 def mapgraph(map):
    currentmap=graph()
    for i in range(len(map)):
@@ -26,11 +34,18 @@ def mapgraph(map):
          currentmap.addvertex(map[i][j],touching)
    return currentmap
 tiles ={"g":"grass", "t":"tree","r":"rock","c":"chest","e":"enemy","rd":"road"}
+grassimage=pygame.image.load('grass.webp')
+rockimage=pygame.image.load('rock.jpeg')
+treeimage=pygame.image.load('trees.jpg')
+chestimage=pygame.image.load('chest.webp')
+enemyimage=pygame.image.load('enemy.jpg')
+roadimage=pygame.image.load('mela.png')
+tilecolours={"g":grassimage,"t":treeimage,"r":rockimage,"c":chestimage,"e":enemyimage,"rd":roadimage}
 maps=open("maps.txt","r")
 mapdests=open("mapdests.txt","r")
 mapscontent=maps.readlines()
 mapdestscontent=mapdests.readlines()
-def openmap(tile, tiles, mapscontent,mapID,px,py):
+def openmap(tiles, mapscontent,mapID,px,py):
     cmap=mapscontent[mapID].split("^")
     rows=len(cmap)
     for i in range(len(cmap)):
@@ -49,11 +64,11 @@ def openmap(tile, tiles, mapscontent,mapID,px,py):
                 cpass=True
              else:
                 cpass=False
-             cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cpass)
+             cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cpass,tilecolours[(cmap[i][j])])
              cid+=1
     return cmap,rows,cols,playerx,playery
 
-cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,0,1,1)
+cmap, rows, cols, playerx, playery = openmap(tiles, mapscontent,0,1,1)
 
 def printmap(cmap, cols, playerx, playery):
     count=0
@@ -72,9 +87,18 @@ def printmap(cmap, cols, playerx, playery):
           else:
            print(f"{j.name} ",end="")
 mapID=0
-while True:
+running=False
+while running:
  currentmapgraph=mapgraph(cmap)
  print(mapID)
+ adjacent=currentmapgraph.vertices[cmap[playery][playerx]]
+ count=1
+ for i in adjacent:
+    if count<len(adjacent):
+     print( i.name+", ",end="")
+    else:
+       print(i.name)
+    count+=1
  printmap(cmap, cols, playerx, playery)
  move=input().lower()
  if move=="d":
@@ -97,15 +121,15 @@ while True:
   destinations = [x.replace(' ', '') for x in destinations]
   destinations = [x.replace('\n', '') for x in destinations]
   if targetx>cols-1  :
-   cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[1])-1,0,targety)
+   cmap, rows, cols, playerx, playery = openmap(tiles, mapscontent,int(destinations[1])-1,0,targety)
    mapID=int(destinations[1])-1
   elif 0>targetx:
-     cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[3])-1,cols-1,targety)
+     cmap, rows, cols, playerx, playery = openmap( tiles, mapscontent,int(destinations[3])-1,cols-1,targety)
      mapID=int(destinations[3])-1
   elif targety>rows-1:
-    cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[2])-1,targetx,0) 
+    cmap, rows, cols, playerx, playery = openmap( tiles, mapscontent,int(destinations[2])-1,targetx,0) 
     mapID=int(destinations[2])-1
   elif 0>targety:
-     cmap, rows, cols, playerx, playery = openmap(tile, tiles, mapscontent,int(destinations[0])-1,targetx,rows-1) 
+     cmap, rows, cols, playerx, playery = openmap(tiles, mapscontent,int(destinations[0])-1,targetx,rows-1) 
      mapID=int(destinations[0])-1
   print(mapID+1)

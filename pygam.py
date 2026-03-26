@@ -10,46 +10,45 @@ red=(255,0,0)
 green=(0,255,0)
 blue=(0,0,255)
 class button():
-    def __init__(self,ID,x,y):
+    def __init__(self,ID,x,y,select):
         self.colour=red
-        self.selected=False
+        self.selected=select
         self.ID=ID
         self.x=x
         self.y=y
-        self.greened=False
     def checkifselected(self,currentselected):
         if currentselected==self.ID:
-            if not self.greened:
-             self.colour=blue
+            self.colour=blue
             self.selected=True
         else:
-            if not self.greened:
              self.colour=red
         self.selected=False
-        
-buttons=[button(0,50,100),button(1,200,100)]
-selected=0
+mousepos=(0,0)
+button1=button(0,*mousepos,False)
+buttons=[button1,button(1,200,100,False)]
+selected=1
 cooldown=0
 while running:
+    mousepos=pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
     for i in buttons:
         i.checkifselected(selected)
+        if i.selected:
+            print(i.ID)
         pygame.draw.rect(screen, i.colour, (i.x,i.y,100,100), 100,)
         
     
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT and selected>0 and cooldown==0:
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT and selected>0 :
                 selected -= 1
-                cooldown=10
-            if event.key == pygame.K_RIGHT and selected<len(buttons)-1 and cooldown==0:
+            if event.key == pygame.K_RIGHT and selected<len(buttons)-1 :
                 selected += 1
-                cooldown=10
             if event.key == pygame.K_z and i.selected:
-                i.colour=green
-                i.greened=True
+                print(i.ID)
+                    
     if cooldown>0:
         cooldown-=1
     pygame.display.flip()
