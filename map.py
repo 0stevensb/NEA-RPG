@@ -60,11 +60,7 @@ def openmap(tiles, mapscontent,mapID,px,py):
        cmap[i] = [x.replace(' ', '') for x in cmap[i]]
        cmap[i] = [x.replace('\n', '') for x in cmap[i]]
        for j in range(cols):
-             if cmap[i][j]=="g"or cmap[i][j]=="rd":
-                cpass=True
-             else:
-                cpass=False
-             cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cpass,tilecolours[(cmap[i][j])])
+             cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cmap[i][j]=="g"or cmap[i][j]=="rd",tilecolours[(cmap[i][j])])
              cid+=1
     return cmap,rows,cols,playerx,playery
 
