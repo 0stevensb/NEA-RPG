@@ -1,4 +1,3 @@
-
 class queue:
     def __init__(self):
         self.queue=[]
@@ -47,6 +46,7 @@ class graph:
             path.append(currentnode)
             currentnode=parentmap[currentnode]
         path.append(root)
+        path.reverse()
         return path
 
 g=graph()
@@ -68,6 +68,6 @@ g.addnode(node6,[node3,node5,node9])
 g.addnode(node7,[node4,node8])
 g.addnode(node8,[node5,node7,node9])
 g.addnode(node9,[node6,node8])
-for i in g.bfs(node3,node7):
+for i in g.bfs(node1,node9):
     #print(i.x,i.y)
     print(i.num,end=" ")

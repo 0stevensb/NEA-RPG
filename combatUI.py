@@ -1,7 +1,6 @@
 import pygame 
-import random
-import sys
 import combat
+import map
 from pygame.locals import *
 pygame.init()
 running=True
@@ -71,7 +70,6 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
     for i in enemyunits:
         for j in playerunits+friendlyunits:
             i.aggro.update({j:50})
-    currentunitind=0
     texttimer=60
     text=""
     text2=""
@@ -82,17 +80,23 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
     usedskill=False
     skillselect=False
     itemselect=False
+    combatorder=map.queue()
+    for x in units:
+         x.setstats()
+    units=combat.turnorder(units)
+    
+    for i in units:
+        combatorder.enqueue(i)
+    currentunit=combatorder.dequeue()
     while running:
         if usedskill and texttimer==1:
-            currentunitind+=1
-            if currentunitind>len(units)-1:
-                currentunitind=0
+            currentunit=combatorder.dequeue()
+            combatorder.enqueue(currentunit)
             usedskill=False
             turnstart=True
-        currentunit=units[currentunitind]
         for x in units:
          x.setstats()
-        units=combat.turnorder(units)
+        
         move=combat.checkmove(currentunit)
         if not move:
             text=(f"{currentunit.name} couldn't move!")
@@ -107,6 +111,9 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
              text2=""
              text3=""
              text4=""
+             if statustick:
+                 combat.statuscheck(currentunit)
+                 statustick=False
             if currentunit.playable:
                 if  buttos and move:
                     for event in pygame.event.get():
@@ -139,20 +146,25 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
                                                         buttons.append(button(i,(screen_width/len(combat.inventory))*(i-1),screen_height-buttonheight,screen_width/len(combat.inventory),buttonheight,combat.inventory[i-1].name))
                                         elif i.ID==4:
                                             running=False
+                                            return True
                                     elif targetselect:
+                                    
                                         if currentskill.targets==1:
                                             if currentskill.type==0:
                                                 target= enemyunits[i.ID-1]
                                                 if not target.defeated:
-                                                    effects,dmg,unit=combat.attack(currentunit,target,currentskill,combat.specialsassign(currentunit,combat.basicatk),units)
+                                                    effects,dmg,unit=combat.attack(currentunit,target,currentskill,combat.specialsassign(currentunit,currentskill),units)
                                                     target.aggro[currentunit]+=currentskill.aggro
                                                     text=f"{currentunit.name} attacked {target.name}!"
                                                     text2=f"It dealt {dmg} damage!"
                                                     if len(effects)>0:
                                                         for i in effects:
-                                                           
+                                                            if i ==3:
+                                                                text3+="The attack was reflected! "
                                                             if i==2:
-                                                                text3+=f"{currentunit.name}'s speed rose! "
+                                                                text3+=f"{currentunit.name} got another turn ! "
+                                                                combatorder.enqueue(currentunit)
+                                                                currentunit.extraturns+=1
                                                             if i==3:
                                                                 text3+=f"{target.name}'s dexterity dropped! "
                                                             if i==4:
@@ -174,7 +186,8 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
                                                 buttos=False
                                                 pause=False
                                                 targetselect=False
-                                            elif currentskill.targets==3:
+                                
+                                        elif currentskill.targets==3:
                                                 target=(friendlyunits+playerunits)[i.ID-1]
                                                 if currentskill==combat.heal:
                                                     healing=round(currentunit.effmag*0.5)
@@ -184,11 +197,11 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
                                                     text=f"{target.name} healed {healing} HP!"
                                                 buttons,bars=initmenu(screen_width,screen_height)
                                             
-                                            usedskill=True
-                                            texttimer=60
-                                            buttos=False
-                                            pause=False
-                                            targetselect=False
+                                        usedskill=True
+                                        texttimer=60
+                                        buttos=False
+                                        pause=False
+                                        targetselect=False
                                     elif skillselect:
                                         
                                         currentskill=currentunit.skills[i.ID-1]
@@ -200,6 +213,19 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
                                         if currentskill.targets==1:
                                             for i in range(len(enemyunits)+1):
                                                      buttons.append(button(i,(screen_width/len(enemyunits))*(i-1),screen_height-buttonheight,screen_width/len(enemyunits),buttonheight,enemyunits[i-1].name))
+                                        elif currentskill.targets==2:
+                                            text=f"{currentunit.name} used {currentskill.name}!"
+                                            text2=f"It dealt "
+                                            for i in enemyunits:
+                                                effects,dmg,unit=combat.attack(currentunit,ctarget,skill,combat.specialsassign(currentunit,skill),units)
+                                                text2+=(f"{dmg}, ")
+                                            text2+="damage"
+                                            buttons,bars=initmenu(screen_width,screen_height)
+
+                                            usedskill=True
+                                            texttimer=60
+                                            buttos=True
+                                            pause=True
                                         elif currentskill.targets==3:
                                             for i in range(len(friendlyunits+playerunits)+1):
                                                      buttons.append(button(i,(screen_width/len(friendlyunits+playerunits))*(i-1),screen_height-buttonheight,screen_width/len(friendlyunits+playerunits),buttonheight,(friendlyunits+playerunits)[i-1].name))
@@ -214,8 +240,11 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
                                         elif item==combat.bomb:
                                             currentskill=combat.bombthrow
                                             attack=True
+                    
                                             combat.inventory.remove(item)
                                         if  attack:
+                                            buttons=[]
+                                            buttonheight=90
                                             targetselect=True
                                             itemselect=False
                                             for i in range(len(enemyunits)+1):
@@ -227,8 +256,15 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
                                             pause=False
                                             itemselect=False
                                             buttons,bars=initmenu(screen_width,screen_height)
+                        if event.type ==pygame.QUIT:
+                            running=False
+                            return True
             else:
-                pygame.event.get()
+                
+                for event in pygame.event.get():
+                    if event.type ==pygame.QUIT:
+                        running =False
+                        return True
                 if not pause:
                     texttimer=60
                     skill = combat.aiturn(currentunit,playerunits,friendlyunits,enemyunits)
@@ -277,30 +313,48 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
                     pause =True
                     buttos=False
                 if texttimer==0:
-                    currentunitind+=1
-                    if currentunitind>len(units)-1:
-                        currentunitind=0
+                    currentunit=combatorder.dequeue()
+                    while currentunit.defeated:
+                        currentunit=combatorder.dequeue()
+                    if currentunit.extraturns==0:
+                        combatorder.enqueue(currentunit)
+                    else:
+                        currentunit.extraturns-=1
                     texttimer=60
                     buttos=False
                     turnstart=True
                     pause=False
+                    statustick=True
         else :   
-            currentunitind+=1
             pause=False
-            if currentunitind>len(units)-1:
-                currentunitind=0
+            currentunit=combatorder.dequeue()
+            if currentunit.extraturns==0:
+                combatorder.enqueue(currentunit)
+            else:
+                currentunit.extraturns-=1
+            statustick=True
         
         mousepos=pygame.mouse.get_pos()
         screen.fill(screencolour)
         count=0
         bars=[]
         for i in playerunits+friendlyunits:
-            bars.append(bar(count,10,(count*gap)+10,100,15,i.maxhp,i.hp,red,"hp",i))
+            if combat.poison in i.status:
+                bars.append(bar(count,10,(count*gap)+10,100,15,i.maxhp,i.hp,purple,"hp",i))
+            else:
+                bars.append(bar(count,10,(count*gap)+10,100,15,i.maxhp,i.hp,red,"hp",i))
             bars.append(bar(count,10,(count*gap)+30,100,15,i.maxmp,i.mp,blue,"mp",i))
             count+=1
         count=0
+        for i in playerunits:
+            bars.append(bar(count,10,(count*gap)+70,100,5,100,i.xp,green,"xp",i))
+            count+=1
+        count=0
         for i in enemyunits:
-            bars.append(bar(len(playerunits+friendlyunits)+count,screen_width-110,(count*gap)+10,100,15,i.maxhp,i.hp,red,"hp",i))
+            if combat.poison in i.status:
+                bars.append(bar(len(playerunits+friendlyunits)+count,screen_width-110,(count*gap)+10,100,15,i.maxhp,i.hp,purple,"hp",i))
+            else:
+                bars.append(bar(len(playerunits+friendlyunits)+count,screen_width-110,(count*gap)+10,100,15,i.maxhp,i.hp,red,"hp",i))
             bars.append(bar(len(playerunits+friendlyunits)+count,screen_width-110,(count*gap)+30,100,15,i.maxmp,i.mp,blue,"mp",i))
             count+=1
 
@@ -342,11 +396,14 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
             for j in playerunits+friendlyunits:
                 if i.aggro[j]>i.aggro[target]:
                     target=j
-            text_surface = my_font.render(target.name, False, red)
-            screen.blit(text_surface, (screen_width-110,(count*gap)+80))
+            text_surface = my_font.render(f"Target: {target.name}", False, red)
+            screen.blit(text_surface, (screen_width-150,(count*gap)+80))
                 
             count+=1
-
+        while combatorder.peek().defeated:
+            combatorder.dequeue()
+        text_surface = my_font.render(f"Next: {combatorder.peek().name}", False, "yellow")
+        screen.blit(text_surface, (screen_width/2,10))
         for i in buttons:
             if i.cooldown>0:
                 i.cooldown-=1
@@ -357,8 +414,7 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
         if texttimer==1: 
          if currentunit.playable:
             buttos=True
-        for i in units:
-         combat.statuscheck(i)
+        
         combat.hpcheck(units)
         alive=[]
         for i in enemyunits:
@@ -366,6 +422,7 @@ def menu(screen,running,buttons,bars,screencolour,enemy,party,screen_width,scree
                 alive.append(i)
         if len(alive)==0:
             running=False
+            return False
         pygame.display.flip()
         pygame.time.Clock().tick(30)
         

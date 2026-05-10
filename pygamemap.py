@@ -1,9 +1,7 @@
 import pygame
 import map
-import random
 import combatUI
 import combat
-import math
 pygame.init()
 
 tiles ={"g":"grass", "t":"tree","r":"rock","c":"chest","rd":"road"}
@@ -23,49 +21,17 @@ goldcolour=(251, 255, 3)
 darkgrey=(51, 51, 49)
 purple=(131, 23, 173)
 black=(0,0,0)
-onmap=True
-onmenu=False
 screen_width, screen_height = 750, 525
-def djikstra(cmap,cmapgraph,startx,starty):
-    unvisited=[]
-    for i in cmapgraph.vertices:
-        unvisited.append(i)
-    distance={}
-    for i in unvisited:
-        if i.x==startx and i.y==starty:
-            distance.update({i:0})
-        else:
-            distance.update({i:math.inf})
-    currentnode=cmap[starty][startx]
-    fullinf=False
-    while len(unvisited)>0 and not fullinf:
-        dist=math.inf
-        currentnode=unvisited[0]
-        for i in unvisited:
-            if distance[i]<dist:
-                dist=distance[i]
-                currentnode=i
-        
-        for i in cmapgraph.vertices[currentnode]:
-                f=distance[i]
-                if f>distance[currentnode]+1:
-                    distance.update({i:distance[currentnode]+1})
-        unvisited.remove(currentnode)
-        fullinf=True
-        for i in unvisited:
-            if i != math.inf:
-                fullinf=False
-    return distance
+
 def play(mc, running, mapswitchcooldown, screen_width, screen_height,combatcooldown):
-    global onmap,onmenu
-    gold=0
-    running=True
-    if onmap:
+     gold=0
+     running=True
      mapID=0
-     cmap, rows, cols, playerx, playery,enemies,cmapgraph = map.openmap( map.mapscontent,mapID,1,1)
+     cmap, rows, cols, playerx, playery,enemies,cmapgraph = map.openmap( map.mapscontent,mapID,5,6)
      screen=pygame.display.set_mode((screen_width,screen_height))
      height=screen_height//rows
      width=screen_width//cols
+     shopcooldown=0
      while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -74,9 +40,7 @@ def play(mc, running, mapswitchcooldown, screen_width, screen_height,combatcoold
                 moving=False
                 if keys[pygame.K_q]:
                     running=False
-                if keys[pygame.K_r]:
-                    onmap=False
-                    onmenu=True
+
                 if keys[pygame.K_RIGHT]:
                     targetx,targety=playerx+1,playery
                     moving=True
@@ -89,13 +53,18 @@ def play(mc, running, mapswitchcooldown, screen_width, screen_height,combatcoold
                 if keys[pygame.K_DOWN]:
                     targetx,targety=playerx,playery+1
                     moving=True
+            
             if moving:
-                
+                    
                 if targetx<=cols-1 and 0<=targetx and targety<=rows-1 and targety>=0:
+                    if cmap[targety][targetx].name=="shop" and gold>=50 and shopcooldown==0:
+                        gold-=50
+                        shopcooldown=10
+                        combat.inventory.append(combat.healthpotion)
                     if cmap[targety][targetx].name=="chest":
                         gold+=100
                         combat.inventory.append(combat.bomb)
-                        cmap[targety][targetx]=map.tile(cmap[targety][targetx].ID,"grass",targety,targetx,True,map.grassimage)
+                        cmap[targety][targetx]=map.tile(cmap[targety][targetx].ID,"grass",targety,targetx,True,map.grassimage,darkgreen)
                     if cmap[targety][targetx].passable:
                         free = True
                         
@@ -104,34 +73,22 @@ def play(mc, running, mapswitchcooldown, screen_width, screen_height,combatcoold
                                 screen=pygame.display.set_mode((screen_width,screen_height))
                                 buttons,bars = combatUI.initmenu(screen_width,screen_height)
                                 combatcooldown=30
-                                combatUI.menu(screen,running,buttons,bars,black,j,combat.units,screen_width,screen_height)
+                                run=combatUI.menu(screen,running,buttons,bars,cmap[targety][targetx].colour,j,combat.units,screen_width,screen_height)
                                 free=False
-                                gold+=combat.battleend(combat.units,j.enemies)
+                                if not run:
+                                    gold+=combat.battleend(combat.units,j.enemies)
                                 enemies.remove(j)
                         if cmap[targety][targetx].passable and free:
                             playerx,playery=targetx,targety
                         for i in enemies:
-                            dists=djikstra(cmap,cmapgraph,playerx,playery)
-                            lowestdist=math.inf
-
-                            z=cmap[i.y][i.x]
-                            y=cmapgraph.vertices[z]
-                            if len(y)==0:
-                                y.append(cmap[i.y-1][i.x])
-                            target=y[0]
-                            for j in cmapgraph.vertices[z]:
-                                if dists[j]<lowestdist:
-                                    lowestdist=dists[j]
-                                    target=j
-                            enemytargetx,enemytargety=target.x,target.y
-                            if enemytargetx<=cols-1 and 0<=enemytargetx and enemytargety<=rows-1 and enemytargety>=0:
-                                for j in enemies:
-                                    if j.x==enemytargetx and j.y==enemytargety:
-                                        free=False
-                                    else:
-                                        free=True
-                                if cmap[enemytargety][enemytargetx].passable and free and not (enemytargetx == playerx and enemytargety == playery):
-                                    i.x,i.y=enemytargetx,enemytargety
+                            if i.movecd==0:
+                                try:
+                                    targetnode=cmapgraph.bfs(cmap[i.y][i.x],cmap[playery][playerx])[0]
+                                    #print(targetnode.x,targetnode.y)
+                                    i.x,i.y=targetnode.x,targetnode.y
+                                    i.movecd=10
+                                except:
+                                    pass
                 else:
                     destinations=map.mapdestscontent[mapID].split(",")
                     destinations = [x.replace('"', '') for x in destinations]
@@ -171,9 +128,11 @@ def play(mc, running, mapswitchcooldown, screen_width, screen_height,combatcoold
                 mapswitchcooldown-=1
             if combatcooldown>0:
                 combatcooldown-=1
+            if shopcooldown>0:
+                shopcooldown-=1
+            for i in enemies:
+                if i.movecd>0:
+                    i.movecd-=1
             pygame.display.flip()
             pygame.time.Clock().tick(30)
-    elif onmenu:
-        screen=pygame.display.set_mode((screen_width,screen_height))
-        buttons,bars = combatUI.initmenu(screen_width,screen_height)
 play(mc, running, 0, screen_width, screen_height,0)

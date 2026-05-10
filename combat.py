@@ -1,5 +1,5 @@
 import random
-class unit():
+class unit(): 
     def __init__(self,name,maxhp,maxmp,attack,defence,speed,magic,dex,agility,abilities,skills,equipped,level,playable,friendly):
       self.name=name
       self.maxhp=maxhp
@@ -27,6 +27,7 @@ class unit():
       self.agilitybst=0
       self.dexbst=0
       self.status=[]
+      self.extraturns=0
     def setstats(self):
        self.effattack=(self.baseattack+self.equipped.totalatk)*(1+self.atkbst*0.25)
        self.effdefence=(self.basedefence+self.equipped.totaldef)*(1+self.defbst*0.25)
@@ -163,7 +164,6 @@ def merge(left,right):
       result.extend(left[i:])
       result.extend(right[j:])
       return result
-
 def damagecalc(attacker,cskill,target,atkspecials,defspecials):
    if cskill.ID==0:
       atktype=attacker.equipped.weapon.damagetype
@@ -314,7 +314,6 @@ def attack(cunit,ctarget,cskill,atkspecials,units):
                      for i in atkspecials:
                         healing=0
                         if i.ID==1:
-                              cunit.spdbst+=1
                               effects.append(2)
                         if i.ID==2 and random.randint(1,3)==3:
                               ctarget.dexbst-=1
@@ -366,6 +365,7 @@ def battleend(playerunits,enemyunits):
       for x in enemyunits:
          totalxp+=x.xpdrop
          totalgold+=x.goldrop
+      totalxp*=random.randint(8,12)/10
       playable=[]
       for x in playerunits:
          if x.playable:
@@ -450,14 +450,14 @@ revive=skill("Revive",12,1,"Revive a defeated ally",20,4,50)
 blizzard=atkskill("Blizzard",13,0,17,2,2,"Summon a blizzard that hits all units on the field with a chance to freeze",13,5,[freeze],80,45)
 bombthrow=atkskill("Bomb Throw",14,0,25,1,2,"Throw a bomb at the target",0,1,[],100,30)
 
-cass=partymember("Cass",50,30,50,40,40,30,30,30,[],[tbolt,spdyslsh,wildstrike],equipped(espear,nothingarmour,nothingarmour,lthrchest,nothingarmour,gloves),10,100,True,True)
+cass=partymember("Cass",50,30,50,40,40,30,30,30,[],[tbolt,spdyslsh,wildstrike],equipped(espear,nothingarmour,nothingarmour,lthrchest,nothingarmour,gloves),10,0,True,True)
 aster=partymember("Aster",30,25,30,20,35,40,50,50,[],[spdyslsh,darkspike,darkblast,sneakystrike,poisonstrike],equipped(assassinknife,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),10,0,True,True)
 elphis=partymember("Elphis",25,50,15,15,25,50,20,20,[],[tbolt,heatwave,heal,blizzard],equipped(wand,nothingarmour,nothingarmour,robe,nothingarmour,nothingarmour),10,0,True,True)
 
 slime=enemy("Slime",50,10,20,50,20,15,10,10,[paralysisimmune,toximmune],[poisonspray],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),5,False,False,10,10,[])
 skeleton=enemy("Skeleton",30,7,30,20,30,10,20,25,[undead,paralysisimmune],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),5,False,False,10,10,[])
 firespirit=enemy("Fire Spirit",20,30,10,10,40,35,30,35,[intangible,fireimmune,undead,paralysisimmune],[heatwave],equipped(magignothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),10,False,False,20,30,[])
-healer=enemy("Healer",25,40,10,20,20,40,20,20,[magreflect,regenerate],[heal],equipped(wand,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),7,False,False,30,30,[])
+cleric=enemy("Cleric",25,40,10,20,20,40,20,20,[magreflect,regenerate],[heal],equipped(wand,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),7,False,False,30,30,[])
 vampire=enemy("Vampire",40,25,30,25,30,25,35,25,[vampiric,fireweak,undead],[],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),10,False,False,30,40,[])
 necromancer=enemy("Necromancer",50,60,10,25,15,35,20,10,[],[revive],equipped(magignothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),15,False,False,60,60,[])
 
@@ -465,8 +465,3 @@ jeff=unit("Jeff",20,10,10,10,10,5,15,15,[],[],equipped(ironswrd,nothingarmour,no
 
 units=[cass,aster,jeff,elphis]
 inventory=[healthpotion,healthpotion,healthpotion,bomb]
-
-
-
-       
-      
