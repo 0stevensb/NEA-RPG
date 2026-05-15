@@ -19,7 +19,6 @@ class unit():
       self.level=level
       self.friendly=friendly
       self.defeated=False
-      self.status=0
       self.atkbst=0
       self.defbst=0
       self.spdbst=0
@@ -28,13 +27,18 @@ class unit():
       self.dexbst=0
       self.status=[]
       self.extraturns=0
-    def setstats(self):
-       self.effattack=(self.baseattack+self.equipped.totalatk)*(1+self.atkbst*0.25)
-       self.effdefence=(self.basedefence+self.equipped.totaldef)*(1+self.defbst*0.25)
-       self.effspeed=(self.basespeed+self.equipped.totalspd)*(1+self.spdbst*0.25)
-       self.effmag=(self.basemagic+self.equipped.totalmag)*(1+self.magbst*0.25)
-       self.effdex=(self.basedex+self.equipped.totaldex)*(1+self.dexbst*0.25)
-       self.effagility=(self.baseagility+self.equipped.totalagility)*(1+self.agilitybst*0.25)
+    def setstats(self,playerunits):
+       totalaff=0
+       if self.playable:
+        for x in playerunits:
+          if x in self.affinity:
+           totalaff+=self.affinity[x]
+       self.effattack=(self.baseattack+self.equipped.totalatk)*(1+self.atkbst*0.25)+(self.baseattack*0.1*totalaff)
+       self.effdefence=(self.basedefence+self.equipped.totaldef)*(1+self.defbst*0.25)+(self.basedefence*0.1*totalaff)
+       self.effspeed=(self.basespeed+self.equipped.totalspd)*(1+self.spdbst*0.25)+(self.basespeed*0.1*totalaff)
+       self.effmag=(self.basemagic+self.equipped.totalmag)*(1+self.magbst*0.25)+(self.basemagic*0.1*totalaff)
+       self.effdex=(self.basedex+self.equipped.totaldex)*(1+self.dexbst*0.25)+(self.basedex*0.1*totalaff)
+       self.effagility=(self.baseagility+self.equipped.totalagility)*(1+self.agilitybst*0.25)+(self.baseagility*0.1*totalaff)
        for x in self.status:
            if x.ID==2:
             self.effdefence=round(self.effdefence*0.85)
@@ -44,6 +48,7 @@ class partymember(unit):
    def __init__(self, name, maxhp, maxmp, attack, defence, speed, magic, dex,agility,abilities, skills, equipped,level,xp,playable,friendly):
       super().__init__(name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly)
       self.xp=xp
+      self.affinity={}
 class enemy(unit):
    def __init__(self, name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly,xpdrop,goldrop,itemdrop):
       super().__init__(name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly)
@@ -70,17 +75,6 @@ class item():
       self.price=price
       self.sellable=sellable
       self.name=name
-class armour(item):
-   def __init__(self, price, sellable,defence,attack,speed,magic,dex,agility,special,slot,name):
-      super().__init__(price, sellable,name)
-      self.defence=defence
-      self.attack=attack
-      self.speed=speed
-      self.magic=magic
-      self.agility=agility
-      self.dex=dex
-      self.special=special
-      self.slot=slot
 class weapon(item):
    def __init__(self, price, sellable,defence,attack,speed,dex,agility,magic,special,name,damagetype):
       super().__init__(price, sellable,name)
@@ -92,6 +86,10 @@ class weapon(item):
       self.agility=agility
       self.special=special
       self.damagetype=damagetype
+class armour(weapon):
+   def __init__(self, price, sellable,defence,attack,speed,magic,dex,agility,special,slot,name):
+      super().__init__(price, sellable,defence,attack,speed,dex,agility,magic,special,name,0)
+      self.slot=slot
 class skill():
    def __init__(self,name,ID,type,desc,manacost,targets,aggro):
       self.name = name
@@ -380,6 +378,14 @@ def battleend(playerunits,enemyunits):
             for i in range(5):
                stats[random.randint(0,len(stats)-1)]+=5
             x.hp,x.mp=x.maxhp,x.maxmp
+         for y in playable:
+            if y!=x:
+               if y in x.affinity:
+                  x.affinity[y]+=1
+               else:
+                  x.affinity.update({y:1})
+
+               
       return totalgold
 def combatinit(units):
    playerunits=[]

@@ -112,7 +112,6 @@ def openmap(mapscontent,mapID,px,py):
        cmap[i]=cmap[i].split(",")
     cols=len(cmap[0])
     cid=0
-    playerx,playery=px,py
     for i in range(rows):
        cmap[i] = [x.replace('"', '') for x in cmap[i]]
        cmap[i] = [x.replace(']', '') for x in cmap[i]]
@@ -120,14 +119,10 @@ def openmap(mapscontent,mapID,px,py):
        cmap[i] = [x.replace(' ', '') for x in cmap[i]]
        cmap[i] = [x.replace('\n', '') for x in cmap[i]]
        for j in range(cols):
-             if cmap[i][j] in passable:
-                cpass=True
-             else:
-                cpass=False
              if cmap[i][j] in tilebg:
-              cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cpass,tileimages[(cmap[i][j])],tilebg[cmap[i][j]])
+              cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cmap[i][j] in passable,tileimages[(cmap[i][j])],tilebg[cmap[i][j]])
              else:
-                 cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cpass,tileimages[(cmap[i][j])],0)
+                 cmap[i][j]=tile(cid,tiles[(cmap[i][j])],i,j,cmap[i][j] in passable,tileimages[(cmap[i][j])],0)
              cid+=1
     cmapenemies=mapenemiescontent[mapID].split("^")
     for i in range(len(cmapenemies)):
@@ -147,4 +142,4 @@ def openmap(mapscontent,mapID,px,py):
        if i.type=="jeff":
           i.enemies =[copy.deepcopy(combat.slime),copy.deepcopy(combat.cleric),copy.deepcopy(combat.skeleton)]
     cmapgraph=mapgraph(cmap,rows,cols)
-    return cmap,rows,cols,playerx,playery,enemies,cmapgraph
+    return cmap,rows,cols,px,py,enemies,cmapgraph

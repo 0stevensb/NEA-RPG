@@ -1,0 +1,5 @@
+Paralysed,1,1
+Burned,2,1
+Poisoned,3,1
+Regen,4,2
+Frozen,5,1
