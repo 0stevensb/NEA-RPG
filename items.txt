@@ -1,2 +1,2 @@
-20,True,Health Potion
-40,True,Bomb
+0,20,True,Health Potion,i
+1,40,True,Bomb,i

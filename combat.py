@@ -71,13 +71,14 @@ class equipped():
        self.totaldex=self.weapon.dex+self.head.dex+self.legs.dex+self.body.dex+self.feet.dex+self.arms.dex
        self.totalagility=self.weapon.agility+self.head.agility+self.legs.agility+self.body.agility+self.feet.agility+self.arms.agility
 class item():
-   def __init__(self,price,sellable,name):
+   def __init__(self,id,price,sellable,name):
+      self.id=id
       self.price=price
       self.sellable=sellable
       self.name=name
 class weapon(item):
-   def __init__(self, price, sellable,defence,attack,speed,dex,agility,magic,special,name,damagetype):
-      super().__init__(price, sellable,name)
+   def __init__(self,id, price, sellable,defence,attack,speed,dex,agility,magic,special,name,damagetype):
+      super().__init__(id,price, sellable,name)
       self.defence=defence
       self.attack=attack
       self.speed=speed
@@ -87,8 +88,8 @@ class weapon(item):
       self.special=special
       self.damagetype=damagetype
 class armour(weapon):
-   def __init__(self, price, sellable,defence,attack,speed,magic,dex,agility,special,slot,name):
-      super().__init__(price, sellable,defence,attack,speed,dex,agility,magic,special,name,0)
+   def __init__(self,id, price, sellable,defence,attack,speed,magic,dex,agility,special,slot,name):
+      super().__init__(id,price, sellable,defence,attack,speed,dex,agility,magic,special,name,0)
       self.slot=slot
 class skill():
    def __init__(self,name,ID,type,desc,manacost,targets,aggro):
@@ -427,19 +428,19 @@ poison=status("Poisoned",3,1)
 regen=status("Regen",4,2)
 frozen=status("Frozen",5,1)
 
-healthpotion=item(20,True,"Health Potion")
-bomb=item(40,True,"Bomb")
-espear=weapon(0,False,0,20,0,0,0,5,[],"Thunder Spear",1)
-knife=weapon(20,True,0,10,5,5,0,0,[],"Knife",1)
-assassinknife=weapon(30,True,0,15,7,7,5,0,[physcritup],"Assassin Knife",1)
-wand=weapon(50,True,0,5,0,0,0,20,[],"Wand",2)
-gloves=armour(50,True,15,30,0,0,0,0,[],"arms","Gloves")
-ironswrd=weapon(30,True,5,20,-2,0,0,0,[],"Iron Sword",1)
-lthrchest=armour(25,True,25,0,0,0,0,0,[],"body","Leather Chestplate")
-robe=armour(40,True,5,0,0,10,0,0,[],"body","Robe")
-nothingarmour=armour(0,False,0,0,0,0,0,0,[],"any","nothing")
-nothingweapon=weapon(0,False,0,0,0,0,0,0,[],"nothing",1)
-magignothingweapon=weapon(0,False,0,0,0,0,0,0,[],"nothing",2)
+healthpotion=item(0,20,True,"Health Potion")
+bomb=item(1,40,True,"Bomb")
+espear=weapon(2,0,False,0,20,0,0,0,5,[],"Thunder Spear",1)
+knife=weapon(3,20,True,0,10,5,5,0,0,[],"Knife",1)
+assassinknife=weapon(4,30,True,0,15,7,7,5,0,[physcritup],"Assassin Knife",1)
+wand=weapon(5,50,True,0,5,0,0,0,20,[],"Wand",2)
+gloves=armour(6,50,True,15,30,0,0,0,0,[],"arms","Gloves")
+ironswrd=weapon(7,30,True,5,20,-2,0,0,0,[],"Iron Sword",1)
+lthrchest=armour(8,25,True,25,0,0,0,0,0,[],"body","Leather Chestplate")
+robe=armour(9,40,True,5,0,0,10,0,0,[],"body","Robe")
+nothingarmour=armour(10,0,False,0,0,0,0,0,0,[],"any","nothing")
+nothingweapon=weapon(11,0,False,0,0,0,0,0,0,[],"nothing",1)
+magignothingweapon=weapon(12,0,False,0,0,0,0,0,0,[],"nothing",2)
 
 basicatk=atkskill("Basic attack",0,0,10,1,1,"A basic attack",0,1,[],100,10)
 tbolt=atkskill("Thunderbolt",1,0,20,2,2,"Attack an enemy with a bolt of lightning, dealing magic damage and a chance to paralyse",10,1,[paralyse],90,30)

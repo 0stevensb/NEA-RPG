@@ -1,25 +1,30 @@
 import combat
-class thing:
-    def __init__(self,q,w):
-        self.text1=q
-        self.text2=w
 
 s=open("statuses.txt")
 i=open("items.txt")
+j=open("specials.txt")
 statuses=s.readlines()
 items=i.readlines()
+specials=j.readlines()
+stuff=statuses+items+specials
 g=[]
-for i in statuses:
+for i in stuff:
     g.append(i.replace("\n", ""))
-f=[]
-for i in items:
-    f.append(i.replace("\n", ""))
-things=[]
-for i in range(len(g)):
+items=[]
+statuses=[]
+specials=[]
+for i in range(len(stuff)):
     e=g[i-1].split(",")
-    things.append(combat.status(e[0],e[1],e[2]))
-for i in range(len(f)):
-    e=f[i-1].split(",")
-    things.append(combat.item(e[0],bool(e[1]),e[2]))
-for i in things:
+    if e[-1]=="st":
+        statuses.append(combat.status(e[0],e[1],e[2]))
+    elif e[-1]=="i":
+     items.append(combat.item(e[0],e[1],bool(e[2]),e[3]))
+    elif e[-1]=="sp":
+        specials.append(combat.special(e[0],e[1],e[2]))
+    
+for i in statuses:
+    print(i.name)
+for i in items:
+    print(i.name)
+for i in specials:
     print(i.name)
