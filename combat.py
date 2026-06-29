@@ -301,6 +301,7 @@ def attack(cunit,ctarget,cskill,atkspecials,units):
                      brnimmune=False
                      toximmune=False
                      paraimmune=False
+                     thorns=False
                      for i in defspecials:
                         if i.ID==8:
                            brnimmune=True
@@ -310,6 +311,8 @@ def attack(cunit,ctarget,cskill,atkspecials,units):
                            paraimmune=True
                         if i.ID==12:
                             toximmune=True
+                        if i.ID==19:
+                           thorns=True 
                      for i in atkspecials:
                         healing=0
                         if i.ID==1:
@@ -336,6 +339,9 @@ def attack(cunit,ctarget,cskill,atkspecials,units):
                         if i.ID==17 and random.randint(1,3)==1:
                            ctarget.status.append(frozen)
                            effects.append(8)
+                        if i.ID ==20 and thorns:
+                           cunit.hp-=cunit.maxhp/8
+                           effects.append(10)
                         if healing>0:
                            cunit.hp+=healing
                            effects.append(9)

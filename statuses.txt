@@ -1,5 +1,5 @@
-Paralysed,1,1,st
-Burned,2,1,st
-Poisoned,3,1,st
-Regen,4,2,st
-Frozen,5,1,st
+Paralysed,0,1,st
+Burned,1,1,st
+Poisoned,2,1,st
+Regen,3,2,st
+Frozen,4,1,st

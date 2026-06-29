@@ -1,2 +1,13 @@
 0,20,True,Health Potion,i
 1,40,True,Bomb,i
+2,0,False,0,20,0,0,0,5,[],Thunder Spear,1,w
+3,20,True,0,10,5,5,0,0,[],Knife,1,w
+4,30,True,0,15,7,7,5,0,[3],Assassin Knife,1,w
+5,50,True,0,5,0,0,0,20,[],Wand,2,w
+6,50,True,15,30,0,0,0,0,[],arms,Gloves,a
+7,30,True,5,20,-2,0,0,0,[],Iron Sword,1,w
+8,25,True,25,0,0,0,0,0,[],body,Leather Chestplate,a
+9,40,True,5,0,0,10,0,0,[],body,Robe,a
+10,0,False,0,0,0,0,0,0,[],any,nothing,a
+11,0,False,0,0,0,0,0,0,[],nothing,1,w
+12,0,False,0,0,0,0,0,0,[],nothing,2,w

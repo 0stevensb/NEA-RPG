@@ -15,7 +15,6 @@ class enemy():
         self.ID=ID
         self.image=image
         self.type=type
-        self.level=level
         self.enemies=enemies
         self.movecd=0
 class queue:

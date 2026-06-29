@@ -1,3 +1,21 @@
-Speed Boost,1,Raises speed stat when attacking,sp
-Dex Down,2,1/3 chance to lower target's dexterity,sp
-Agility Up,3,Raises agility when attacking,sp
+Speed Boost,0,Raises speed stat when attacking,sp
+Dex Down,1,1/3 chance to lower target's dexterity,sp
+Agility Up,2,Raises agility when attacking,sp
+Physical Crit Up,3,Physical attacks are 50% more likely to crit,sp
+Paralyse,4,1/3 chance to inflict paralysis when attacking,sp
+Burn,5,1/3 chance to inflict burn when attacking,sp
+Intangible,6,Take no damage from physical attacks,sp
+Fire Immune,7,Take no damage from fire attacks and immune to burn,sp
+Undead,8,Immune to poison and bleed,sp
+Toxic,9,1/3 chance to apply poison when attacking,sp
+Paralysis Immune,10,Cannot be paralysed,sp
+Poison Immune,11,Immune to poison attacks and being poisoned,sp
+Reflect Magic,12,Reflect magic attacks back at the attacker,sp
+Regenerate,13,Regenerate 10% of hp each turn,sp
+Vampiric,14,Recover half of physical damage dealt,sp
+Fire Weakness,15,Take double damage from fire attacks,sp
+Freeze,16,1/3 chance to freeze when attacking,sp
+Fire,17,Fire based attack,sp
+Poison,18,Poison based attack,sp
+Thorns,19,Deals damage to attackers which make contact,sp
+Contact,20,Makes contact with the target,sp
