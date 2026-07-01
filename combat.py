@@ -1,7 +1,8 @@
 import random
 class unit(): 
-    def __init__(self,name,maxhp,maxmp,attack,defence,speed,magic,dex,agility,abilities,skills,equipped,level,playable,friendly):
+    def __init__(self,name,id,maxhp,maxmp,attack,defence,speed,magic,dex,agility,abilities,skills,equipped,level,playable,friendly):
       self.name=name
+      self.id=id
       self.maxhp=maxhp
       self.hp=self.maxhp
       self.maxmp=maxmp
@@ -45,13 +46,13 @@ class unit():
            if x.ID==1:
             self.effspeed=round(self.effspeed/2) 
 class partymember(unit):
-   def __init__(self, name, maxhp, maxmp, attack, defence, speed, magic, dex,agility,abilities, skills, equipped,level,xp,playable,friendly):
-      super().__init__(name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly)
+   def __init__(self,id, name, maxhp, maxmp, attack, defence, speed, magic, dex,agility,abilities, skills, equipped,level,xp,playable,friendly):
+      super().__init__(name,id, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly)
       self.xp=xp
       self.affinity={}
 class enemy(unit):
-   def __init__(self, name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly,xpdrop,goldrop,itemdrop):
-      super().__init__(name, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly)
+   def __init__(self, name,id, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly,xpdrop,goldrop,itemdrop):
+      super().__init__(name,id, maxhp, maxmp, attack, defence, speed, magic, dex, agility, abilities, skills, equipped, level, playable, friendly)
       self.xpdrop=xpdrop
       self.goldrop=goldrop
       self.itemdrop=itemdrop
@@ -463,18 +464,18 @@ revive=skill("Revive",12,1,"Revive a defeated ally",20,4,50)
 blizzard=atkskill("Blizzard",13,0,17,2,2,"Summon a blizzard that hits all units on the field with a chance to freeze",13,5,[freeze],80,45)
 bombthrow=atkskill("Bomb Throw",14,0,25,1,2,"Throw a bomb at the target",0,1,[],100,30)
 
-cass=partymember("Cass",50,30,50,40,40,30,30,30,[],[tbolt,spdyslsh,wildstrike],equipped(espear,nothingarmour,nothingarmour,lthrchest,nothingarmour,gloves),10,0,True,True)
-aster=partymember("Aster",30,25,30,20,35,40,50,50,[],[spdyslsh,darkspike,darkblast,sneakystrike,poisonstrike],equipped(assassinknife,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),10,0,True,True)
-elphis=partymember("Elphis",25,50,15,15,25,50,20,20,[],[tbolt,heatwave,heal,blizzard],equipped(wand,nothingarmour,nothingarmour,robe,nothingarmour,nothingarmour),10,0,True,True)
+cass=partymember("Cass",0,50,30,50,40,40,30,30,30,[],[tbolt,spdyslsh,wildstrike],equipped(espear,nothingarmour,nothingarmour,lthrchest,nothingarmour,gloves),10,0,True,True)
+aster=partymember("Aster",1,30,25,30,20,35,40,50,50,[],[spdyslsh,darkspike,darkblast,sneakystrike,poisonstrike],equipped(assassinknife,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),10,0,True,True)
+elphis=partymember("Elphis",2,25,50,15,15,25,50,20,20,[],[tbolt,heatwave,heal,blizzard],equipped(wand,nothingarmour,nothingarmour,robe,nothingarmour,nothingarmour),10,0,True,True)
 
-slime=enemy("Slime",50,10,20,50,20,15,10,10,[paralysisimmune,toximmune],[poisonspray],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),5,False,False,10,10,[])
-skeleton=enemy("Skeleton",30,7,30,20,30,10,20,25,[undead,paralysisimmune],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),5,False,False,10,10,[])
-firespirit=enemy("Fire Spirit",20,30,10,10,40,35,30,35,[intangible,fireimmune,undead,paralysisimmune],[heatwave],equipped(magignothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),10,False,False,20,30,[])
-cleric=enemy("Cleric",25,40,10,20,20,40,20,20,[magreflect,regenerate],[heal],equipped(wand,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),7,False,False,30,30,[])
-vampire=enemy("Vampire",40,25,30,25,30,25,35,25,[vampiric,fireweak,undead],[],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),10,False,False,30,40,[])
-necromancer=enemy("Necromancer",50,60,10,25,15,35,20,10,[],[revive],equipped(magignothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),15,False,False,60,60,[])
+slime=enemy("Slime",0,50,10,20,50,20,15,10,10,[paralysisimmune,toximmune],[poisonspray],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),5,False,False,10,10,[])
+skeleton=enemy("Skeleton",1,30,7,30,20,30,10,20,25,[undead,paralysisimmune],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),5,False,False,10,10,[])
+firespirit=enemy("Fire Spirit",2,20,30,10,10,40,35,30,35,[intangible,fireimmune,undead,paralysisimmune],[heatwave],equipped(magignothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),10,False,False,20,30,[])
+cleric=enemy("Cleric",3,25,40,10,20,20,40,20,20,[magreflect,regenerate],[heal],equipped(wand,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),7,False,False,30,30,[])
+vampire=enemy("Vampire",4,40,25,30,25,30,25,35,25,[vampiric,fireweak,undead],[],equipped(nothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),10,False,False,30,40,[])
+necromancer=enemy("Necromancer",5,50,60,10,25,15,35,20,10,[],[revive],equipped(magignothingweapon,nothingarmour,nothingarmour,nothingarmour,nothingarmour,nothingarmour),15,False,False,60,60,[])
 
-jeff=unit("Jeff",20,10,10,10,10,5,15,15,[],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),4,False,True)
+jeff=unit("Jeff",0,20,10,10,10,10,5,15,15,[],[],equipped(ironswrd,nothingarmour,nothingarmour,lthrchest,nothingarmour,nothingarmour),4,False,True)
 
 units=[cass,aster,jeff,elphis]
 inventory=[healthpotion,healthpotion,healthpotion,bomb]

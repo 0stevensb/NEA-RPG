@@ -6,9 +6,9 @@ Dark Spike,4,0,15,2,1,Attack a target with spikes of darkness. A magical attack 
 Dark Blast,5,0,20,2,2,Launch a collection of dark energy at the target. Chance to reduce dexterity,10,1,[1],90,20,sk
 Sneaky Strike,6,0,11,1,1,Attack the target from the shadows raising agility and never missing",5,1,[2],101,-20,sk
 Heat Wave,7,0,14,2,2,Hit all opponents with a blast of superheated air. Has a chance to burn,10,2,[5/17],80,35,sk
-heal=skill("Heal",9,2,"Restore the target's HP",10,3,30)
-poisonstrike=atkskill("Poisoned Strike",10,0,12,1,1,"Attack an enemy with a poisoned attack",6,1,[toxic],100,20)
-poisonspray=atkskill("Poison Spray",11,0,15,2,2,"Spray poison at all enemies",5,2,[toxic,poison],85,30)
-revive=skill("Revive",12,1,"Revive a defeated ally",20,4,50)
-blizzard=atkskill("Blizzard",13,0,17,2,2,"Summon a blizzard that hits all units on the field with a chance to freeze",13,5,[freeze],80,45)
-bombthrow=atkskill("Bomb Throw",14,0,25,1,2,"Throw a bomb at the target",0,1,[],100,30)
+Heal,8,2,Restore the target's HP,10,3,30,sk
+Poisoned Strike,9,0,12,1,1,Attack an enemy with a poisoned attack,6,1,[9],100,20,sk
+Poison Spray,10,0,15,2,2,"Spray poison at all enemies",5,2,[9/18],85,30,sk
+Revive,11,1,Revive a defeated ally,20,4,50,sk
+Blizzard,12,0,17,2,2,Summon a blizzard that hits all units on the field with a chance to freeze,13,5,[16],80,45,sk
+Bomb Throw,13,0,25,1,2,Throw a bomb at the target,0,1,[],100,30,sk
